@@ -10,4 +10,8 @@ public class Product : Pickable
     {
         return this.produto;
     }
+    public void setProduto(ScriptableProduct productData)
+    {
+        this.produto = productData;
+    }
 }

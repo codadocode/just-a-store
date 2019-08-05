@@ -9,6 +9,8 @@ public class ScriptableProduct : ScriptableObject
     private string nome;
     [SerializeField]
     private float preco;
+    [SerializeField]
+    private GameObject prefab;
     public ScriptableProduct(string nome, float preco)
     {
         this.nome = nome;
@@ -29,5 +31,12 @@ public class ScriptableProduct : ScriptableObject
     public void setPreco(float preco)
     {
         this.preco = preco;
+    }
+    public GameObject instancePrefab()
+    {
+        GameObject tmpInstancePrefab = Instantiate<GameObject>(prefab);
+        tmpInstancePrefab.GetComponent<Product>().disableGravity();
+        return tmpInstancePrefab;
+
     }
 }

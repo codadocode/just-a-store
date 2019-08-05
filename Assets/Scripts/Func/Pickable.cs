@@ -4,15 +4,14 @@ using UnityEngine;
 
 public class Pickable : MonoBehaviour
 {
-    // Start is called before the first frame update
-    void Start()
+    public void enableGravity()
     {
-        
+        GetComponent<Rigidbody>().freezeRotation = false;
+        GetComponent<Rigidbody>().useGravity = true;
     }
-
-    // Update is called once per frame
-    void Update()
+    public void disableGravity()
     {
-        
+        GetComponent<Rigidbody>().freezeRotation = true;
+        GetComponent<Rigidbody>().useGravity = false;
     }
 }

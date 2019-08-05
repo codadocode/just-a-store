@@ -7,6 +7,7 @@ public class Controller : MonoBehaviour
     // Start is called before the first frame update
     void Start()
     {
+        loadGlobalInstances();
         changeCursorState();
     }
 
@@ -19,7 +20,7 @@ public class Controller : MonoBehaviour
         }
     }
 
-    private void changeCursorState()
+    public void changeCursorState()
     {
         if (Cursor.lockState == CursorLockMode.Locked)
         {
@@ -33,5 +34,12 @@ public class Controller : MonoBehaviour
             Cursor.visible = false;
             Cursor.lockState = CursorLockMode.Locked;
         }
+    }
+    private void loadGlobalInstances()
+    {
+        GameConfig.actualCanvas = GameObject.FindObjectOfType<Canvas>();
+        GameConfig.actualPlayer = GameObject.FindObjectOfType<Player>();
+        GameConfig.actualSun = GameObject.FindObjectOfType<Sun>();
+        GameConfig.actualController = this;
     }
 }

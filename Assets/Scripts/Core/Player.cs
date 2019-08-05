@@ -20,6 +20,7 @@ public class Player : MonoBehaviour
     [SerializeField]
     private float rayCastDistance = 10;
     private Pickable hand = null;
+    private Container actualContainer = null;
     private GameObject handPos;
 
     // Start is called before the first frame update
@@ -38,17 +39,6 @@ public class Player : MonoBehaviour
                 cameraMouse();
             }
             checkInput();
-
-            if (Input.GetKeyDown(KeyCode.Mouse0))
-            {
-                if (hand != null) {
-                    this.hand.GetComponent<Rigidbody>().isKinematic = false;
-                    this.hand.GetComponent<Rigidbody>().freezeRotation = false;
-                    this.hand.GetComponent<Rigidbody>().useGravity = true;
-                    this.hand.GetComponent<Rigidbody>().AddRelativeForce(Vector3.forward * 500);
-                    this.hand = null;
-                }
-            }
         }
     }
     private void FixedUpdate()
@@ -65,14 +55,104 @@ public class Player : MonoBehaviour
         {
             if (hand != null)
             {
-                this.hand.GetComponent<Rigidbody>().isKinematic = false;
-                this.hand.GetComponent<Rigidbody>().freezeRotation = false;
-                this.hand.GetComponent<Rigidbody>().useGravity = true;
+                this.hand.enableGravity();
                 this.hand = null;
             }else
             {
-                checkRaycast();
+                GameObject objectCollider = checkRaycast();
+                if (objectCollider != null)
+                {
+                    if (objectCollider.GetComponent<CustomTag>().findTag("Pickable"))
+                    {
+                        //Debug.Log("Pegou alguma bosta...");
+                        setHand(objectCollider.GetComponent<Pickable>());
+                        this.hand.disableGravity();
+                        //Debug.Log(this.hand.ToString());
+                    }
+                    else if (objectCollider.GetComponent<CustomTag>().findTag("Porta"))
+                    {
+                        objectCollider.GetComponent<SingleDoor>().openDoor();
+                    }
+                }
             }
+        }
+        if (Input.GetKeyDown(KeyCode.Mouse0))
+        {
+            if (Cursor.lockState == CursorLockMode.Locked)
+            {
+                if (hand != null)
+                {
+                    if (hand.GetComponent<CustomTag>().findTag("Product"))
+                    {
+                        print("Is a Product");
+                        GameObject objectCollider = checkRaycast();
+                        if (objectCollider != null)
+                        {
+                            if (objectCollider.GetComponent<CustomTag>().findTag("Container"))
+                            {
+                                objectCollider.GetComponent<Container>().guardarItem((Product)hand);
+                                hand = null;
+                            }
+                        }
+                    }
+                    if (hand != null)
+                    {
+                        throwItem();
+                    }
+                }
+            }else if (Cursor.lockState == CursorLockMode.None)
+            {
+                //print(actualContainer.getActualInteractMenu().getIndexValue().ToString());
+            }
+        }
+        if (Input.GetKeyDown(KeyCode.Mouse1))
+        {
+            GameObject objectCollider = checkRaycast();
+            if (objectCollider != null)
+            {
+                if (actualContainer == null && hand == null)
+                {
+                    if (objectCollider.GetComponent<CustomTag>().findTag("Container"))
+                    {
+                        if (!objectCollider.GetComponent<Container>().hasActualInteractMenu())
+                        {
+                            GameConfig.actualController.changeCursorState();
+                            this.actualContainer = objectCollider.GetComponent<Container>();
+                            this.actualContainer.openContainer();
+                        }
+                    }
+                }
+                else
+                {
+                    if (actualContainer != null)
+                    {
+                        closeActualContainer();
+                        GameConfig.actualController.changeCursorState();
+                    }
+                }
+            }
+        }
+        if (Input.GetButtonDown("Cancel"))
+        {
+            closeActualContainer();
+        }
+    }
+
+    void HandleUnityAction(int arg0)
+    {
+    }
+
+
+    private void throwItem()
+    {
+        if (hand != null)
+        {
+            print("Throw Item!");
+            this.hand.GetComponent<Rigidbody>().isKinematic = false;
+            this.hand.GetComponent<Rigidbody>().freezeRotation = false;
+            this.hand.GetComponent<Rigidbody>().useGravity = true;
+            this.hand.GetComponent<Rigidbody>().AddRelativeForce(Vector3.forward * 500);
+            this.hand = null;
         }
     }
     private void checkHand()
@@ -84,6 +164,11 @@ public class Player : MonoBehaviour
             hand.GetComponent<Rigidbody>().velocity = dir * 20;
             hand.transform.rotation = playerCamera.transform.rotation;
         }
+    }
+    public void setHand(Pickable item)
+    {
+        this.hand = item;
+        this.hand.transform.position = handPos.transform.position;
     }
     private void movement()
     {
@@ -106,7 +191,7 @@ public class Player : MonoBehaviour
             {
                 if (rb.velocity.magnitude > 0)
                 {
-                    //Debug.Log("Reduzindo Velocidade...");
+                    rb.velocity = new Vector3(0, 0, 0);
                 }
             }
         }
@@ -136,7 +221,7 @@ public class Player : MonoBehaviour
             }
         }
     }
-    private void checkRaycast()
+    private GameObject checkRaycast()
     {
         RaycastHit hit;
         Vector3 rayCastOrigin = this.transform.position;
@@ -148,21 +233,21 @@ public class Player : MonoBehaviour
             GameObject objectCollider = hit.collider.gameObject;
             Debug.Log(objectCollider.ToString());
             Debug.Log(objectCollider.tag);
-            if (objectCollider.GetComponent<CustomTag>().findTag("Pickable"))
-            {
-                //Debug.Log("Pegou alguma bosta...");
-                this.hand = objectCollider.GetComponent<Pickable>();
-                this.hand.GetComponent<Rigidbody>().freezeRotation = true;
-                this.hand.GetComponent<Rigidbody>().useGravity = false;
-                Debug.Log(this.hand.ToString());
-            }else if (objectCollider.GetComponent<CustomTag>().findTag("Porta"))
-            {
-                objectCollider.GetComponent<SingleDoor>().openDoor();
-            }
+            return objectCollider;
         }
+        return null;
     }
     public void setParado(bool parado)
     {
         this.parado = parado;
+    }
+    public void closeActualContainer()
+    {
+        if (actualContainer != null)
+        {
+            actualContainer.closeContainer();
+            actualContainer = null;
+            GameConfig.actualController.changeCursorState();
+        }
     }
 }

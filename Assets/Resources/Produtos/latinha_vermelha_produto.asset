@@ -1,0 +1,17 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 9d342e3a66f0d934ead8243f834b3f3e, type: 3}
+  m_Name: latinha_vermelha_produto
+  m_EditorClassIdentifier: 
+  nome: "Xola-Xola\x13\x13\x13"
+  preco: 4
+  prefab: {fileID: 3144704200704272495, guid: 22db3fb47da8f254b8fef5875fc3701b, type: 3}
